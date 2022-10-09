@@ -4,16 +4,18 @@ Ubuntu20.04+ 自动编译 Naiveproxy
 
 ## Quick Start
 
-
+```shell
+wget -O npstart.py https://raw.githubusercontent.com/QIN2DIM/np-start/main/main.py && python3 npstart.py
+```
 
 ## 脚本执行流
 
 ### 预准备
 
-1. 检查 apt packages: snap, wget
+1. 检查 apt packages: snap
 
    ```shell
-   apt install -y snapd wget
+   apt install -y snapd
    ```
 
 2. 确保 80,443 端口无占用
