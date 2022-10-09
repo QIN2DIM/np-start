@@ -78,8 +78,9 @@ logging.basicConfig(level=logging.INFO,
 
 
 def preprocess():
-    logging.info("Check snap, wget, port80 and port443")
+    os.system("clear")
 
+    logging.info("Check snap, wget, port80 and port443")
     cmd_queue = (
         "apt install -y snapd wget >/dev/null 2>&1",
         "nginx -s stop >/dev/null 2>&1"
@@ -119,7 +120,6 @@ def guider_input():
         with open(config.path_caddyfile, "w", encoding="utf8") as file:
             file.write(template)
 
-    os.system("clear")
     while not (domain := input("请输入域名 ---> ").strip()):
         pass
 
@@ -177,8 +177,9 @@ def dropout_client_config_nekoray():
 
 
 def autorun():
-    logging.info(f"测试稳定后运行 {config.path_caddy} start 部署后台任务")
-    input("按任意键试运行 naiveproxy，之后可以 CTRL+C 退出进程")
+    logging.info(f"测试稳定后运行 `{config.path_caddy} start` 部署后台任务")
+    logging.info("按任意键试运行 naiveproxy，之后可以 CTRL + C 退出前台任务")
+    input("")
     os.system(f"cd {config.dir_workspace} && ./caddy run")
 
 
