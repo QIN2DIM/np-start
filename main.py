@@ -72,19 +72,18 @@ class Config:
 
 config = Config()
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s [%(levelname)s] %(message)s',
-                    datefmt='%Y/%m/%d %H:%M:%S')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y/%m/%d %H:%M:%S",
+)
 
 
 def preprocess():
     os.system("clear")
 
     logging.info("Check snap, wget, port80 and port443")
-    cmd_queue = (
-        "apt install -y snapd wget >/dev/null 2>&1",
-        "nginx -s stop >/dev/null 2>&1"
-    )
+    cmd_queue = ("apt install -y snapd wget >/dev/null 2>&1", "nginx -s stop >/dev/null 2>&1")
     for cmd in cmd_queue:
         os.system(cmd)
 
@@ -148,7 +147,7 @@ def dropout_client_config_v2rayn():
         "[domain]": config.domain,
         "[username]": config.username,
         "[password]": config.password,
-        "[listen_port]": f"{random.randint(50000, 60000)}"
+        "[listen_port]": f"{random.randint(50000, 60000)}",
     }
     for p in p2v:
         tmp = tmp.replace(p, p2v[p])
@@ -183,10 +182,13 @@ def autorun():
     os.system(f"cd {config.dir_workspace} && ./caddy run")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     preprocess()
     handle_server()
-    guider_input()
-    dropout_client_config_v2rayn()
-    dropout_client_config_nekoray()
-    autorun()
+    if os.path.isfile(config.path_caddy):
+        guider_input()
+        dropout_client_config_v2rayn()
+        dropout_client_config_nekoray()
+        autorun()
+    else:
+        logging.error("编译失败")
