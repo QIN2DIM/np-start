@@ -64,6 +64,7 @@ class Config:
     domain = ""
     sni = ""
     port = "443"
+    scheme = "https"  # "https" or "quic"
 
     def __post_init__(self):
         os.makedirs(self.dir_workspace, exist_ok=True)
@@ -170,17 +171,20 @@ def dropout_client_config_nekoray():
     for p in p2v:
         tmp = tmp.replace(p, p2v[p])
 
-    print(" NekoRay ".center(50, "="), tmp)
+    share_link = (
+        f"naive+{config.scheme}://{config.username}:{config.password}@{config.domain}#NaiveNode"
+    )
+    print(" NekoRay/Matsuri ".center(50, "="), tmp)
+    print(" NekoRay/Matsuri 分享链接", share_link)
     path_output = os.path.join(config.dir_conf, "nekoray_naive.txt")
     with open(path_output, "w", encoding="utf8") as file:
         file.write(tmp)
 
 
 def autorun():
-    logging.info(f"测试稳定后运行 `{config.path_caddy} start` 部署后台任务")
-    logging.info("按任意键试运行 naiveproxy，之后可以 CTRL + C 退出前台任务")
+    logging.info("按任意键部署 Naiveproxy 后台任务")
     input("")
-    os.system(f"cd {config.dir_workspace} && ./caddy run")
+    os.system(f"cd {config.dir_workspace} && ./caddy start")
 
 
 if __name__ == "__main__":
@@ -188,8 +192,8 @@ if __name__ == "__main__":
     handle_server()
     if os.path.isfile(config.path_caddy):
         guider_input()
+        autorun()
         dropout_client_config_v2rayn()
         dropout_client_config_nekoray()
-        autorun()
     else:
         logging.error("编译失败")
