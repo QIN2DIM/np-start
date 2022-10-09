@@ -37,6 +37,8 @@ wget -O npstart.py https://raw.githubusercontent.com/QIN2DIM/np-start/main/main.
 
 1. 安装 golang 1.18.5
 
+   这一步执行前会先通过 `apt remove -y golang-go` 卸载低版本语言包。
+
    ```shell
    snap install go --classic
    ```
@@ -83,18 +85,18 @@ route {
 
 ### 启动 Naiveproxy
 
-`/home/caddy` 为 output 输出路径，根据你自己的参数而定。通过 `caddy --help` 查看所有指令
+`/home/caddy` 为 output 输出路径，根据你自己的参数而定。通过 `caddy --help` 查看所有指令。
 
 1. 前台运行
 
    ```shell
-   /home/caddy run
+   cd /home && ./caddy run
    ```
 
 2. 后台运行
 
    ```shell
-   /home/caddy start
+   cd /home && ./caddy start
    ```
 
 3. 开机自启
