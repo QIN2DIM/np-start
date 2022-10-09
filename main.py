@@ -172,10 +172,10 @@ def dropout_client_config_nekoray():
         tmp = tmp.replace(p, p2v[p])
 
     share_link = (
-        f"naive+{config.scheme}://{config.username}:{config.password}@{config.domain}#NaiveNode"
+        f"naive+{config.scheme}://{config.username}:{config.password}@{config.domain}:{config.port}#NaiveNode"
     )
     print(" NekoRay/Matsuri ".center(50, "="), tmp)
-    print(" NekoRay/Matsuri 分享链接", share_link)
+    print(f"NekoRay/Matsuri 分享链接 {share_link}\n")
     path_output = os.path.join(config.dir_conf, "nekoray_naive.txt")
     with open(path_output, "w", encoding="utf8") as file:
         file.write(tmp)
