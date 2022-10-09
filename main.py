@@ -90,6 +90,7 @@ def preprocess():
 
 def handle_server():
     logging.info("Check go1.18+")
+    os.system("apt remove golang-go -y >/dev/null 2>&1")
     os.system("snap install go --classic >/dev/null 2>&1")
 
     logging.info("Check xcaddy ")
