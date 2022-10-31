@@ -219,11 +219,11 @@ class CaddyService:
 
     def __init__(self):
         self._on_service()
+        self.path_units = f"/etc/systemd/system/{self.name}.service"
 
     def _on_service(self):
-        path_units = f"/etc/systemd/system/{self.name}.service"
-        if not os.path.isfile(path_units):
-            with open(path_units, "w", encoding="utf8") as file:
+        if not os.path.isfile(self.path_units):
+            with open(self.path_units, "w", encoding="utf8") as file:
                 file.write(NAIVEPROXY_SERVICE)
             os.system("systemctl daemon-reload")
             os.system(f"systemctl enable {self.name} >/dev/null 2>&1")
@@ -251,13 +251,33 @@ class CaddyService:
         """查看 CaddyServer 运行状态"""
         os.system(f"systemctl status {self.name}")
 
+    def remove(self):
+        os.system(f"systemctl stop {self.name}")
+        os.system(f"systemctl disable {self.name} >/dev/null 2>&1")
+        os.system(f"rm {self.path_units}")
+        os.system("systemctl daemon-reload")
+        logging.info("Remove the naiveproxy")
+
 
 class NaiveproxyPanel:
+    ALIAS = "npstart"
+    LOCAL_SCRIPT = "/home/npstart.py"
+    REMOTE_GITHUB = "https://raw.githubusercontent.com/QIN2DIM/np-start/dev/main.py"
+    REMOTE_GITEE = None
+
     def __init__(self):
         self.path_caddy = PATH_CADDY
         self.csm = ClientSettings()
         self.caddy = self.csm.caddy
         self.utils = CaddyService()
+
+        self._on_alias()
+
+    def _on_alias(self):
+        if not os.path.isfile(self.LOCAL_SCRIPT):
+            logging.info("Local script is missing, trying to sync upstream content")
+            os.system(f"wget -qO {self.LOCAL_SCRIPT} {self.REMOTE_GITHUB} >/dev/null 2>&1")
+        os.system(f"alias {self.ALIAS}='python3 {self.LOCAL_SCRIPT}'")
 
     def _compile(self):
         # ==================== preprocess ====================
@@ -336,8 +356,9 @@ class NaiveproxyPanel:
     def delete(self):
         """删除 np-start 缓存"""
         if input(">> 卸载「已编译的Caddy服務及缓存數據」[y/n]").strip().lower().startswith("y"):
-            self.utils.caddy_stop()
+            self.utils.remove()
             os.system(f"rm -rf {WORKSPACE} >/dev/null 2>&1")
+            os.system(f"unalias {self.ALIAS}")
             logging.info("Delete cache of the naiveproxy")
         else:
             logging.info(f"Withdraw operation")
@@ -382,7 +403,10 @@ class NaiveproxyPanel:
 
 
 if __name__ == "__main__":
+
     try:
         NaiveproxyPanel().guide_menu()
     except KeyboardInterrupt:
         print("\n")
+
+# wget -qO /home/npstart.py https://raw.githubusercontent.com/QIN2DIM/np-start/dev/main.py && python3 /home/npstart.py
