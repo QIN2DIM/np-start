@@ -55,9 +55,9 @@ GUIDER_PANEL = """
  -------------------------------------------
 |**********       np-start         **********|
 |**********    Author: QIN2DIM     **********|
-|**********     Version: 0.0.5     **********|
+|**********     Version: 0.1.0     **********|
  -------------------------------------------
-Tips:np-start 命令再次运行本脚本.
+Tips: npstart 命令再次运行本脚本.
 .............................................
 
 ############################### 
@@ -212,7 +212,6 @@ class CaddyServiceControl:
 
 
 class NaiveproxyPanel:
-
     def __init__(self):
         self.path_caddy = PATH_CADDY
         self.csm = ClientSettingsManager()
@@ -255,9 +254,16 @@ class NaiveproxyPanel:
         # ==================== Network FineTune ====================
         logging.info("Naiveproxy Network Performance Tuning")
         cmd_queue = (
-            "sudo sysctl -w net.ipv4.tcp_congestion_control=bbr >/dev/null 2>&1",
-            "sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0 >/dev/null 2>&1",
-            "sudo sysctl -w net.ipv4.tcp_notsent_lowat=16384 >/dev/null 2>&1",
+            # Enable BBR+FQ Congestion control algorithm
+            "sudo sysctl -w net.core.default_qdisc=fq"
+            "sudo sysctl -w net.ipv4.tcp_congestion_control=bbr",
+            # optimizing tcp for high wan throughput while preserving low latency
+            "sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0",
+            "sudo sysctl -w net.ipv4.tcp_rmem=8192 262144 536870912",
+            "sudo sysctl -w net.ipv4.tcp_wmem=4096 16384 536870912",
+            "sudo sysctl -w net.ipv4.tcp_adv_win_scale=-2",
+            "sudo sysctl -w net.ipv4.tcp_collapse_max_bytes=6291456",
+            "sudo sysctl -w net.ipv4.tcp_notsent_lowat=131072",
         )
         for cmd in cmd_queue:
             os.system(cmd)
@@ -308,7 +314,6 @@ class NaiveproxyPanel:
             self.caddy.password = input(">> 输入密码[password](回车随机配置)：").strip()
         if input(f">> 是否使用上次配置的域名({self.caddy.domain})？[y/n]").strip().lower().startswith("n"):
             self.caddy.domain = self._guide_domain(prompt=">> 输入解析到本机Ipv4的域名[domain]：")
-
         self.csm.refresh_localcache()  # reset
         logging.info("reset user config")
         self.utils.caddy_reload()
