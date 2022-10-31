@@ -278,7 +278,8 @@ class NaiveproxyPanel:
         if not os.path.isfile(self.LOCAL_SCRIPT):
             logging.info("Local script is missing, trying to sync upstream content")
             os.system(f"wget -qO {self.LOCAL_SCRIPT} {self.REMOTE_GITHUB} >/dev/null 2>&1")
-        os.system(f"alias {self.ALIAS}='python3 {self.LOCAL_SCRIPT}'")
+        os.system(f"alias npstart='python3 {self.LOCAL_SCRIPT}'")
+        logging.info("Command alias configured")
 
     def _compile(self):
         # ==================== preprocess ====================
