@@ -302,10 +302,10 @@ class CMDPanel:
         """Network FineTune"""
         logging.info("Naiveproxy Network Performance Tuning")
         cmd_queue = (
-            # Enable BBR+FQ Congestion control algorithm
+            # ENABLE BBR+FQ CONGESTION CONTROL ALGORITHM
             "sudo sysctl -w net.core.default_qdisc=fq"
             "sudo sysctl -w net.ipv4.tcp_congestion_control=bbr",
-            # optimizing tcp for high wan throughput while preserving low latency
+            # OPTIMIZING TCP FOR HIGH WAN THROUGHPUT WHILE PRESERVING LOW LATENCY
             "sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0",
             "sudo sysctl -w net.ipv4.tcp_rmem='8192 262144 536870912'",
             "sudo sysctl -w net.ipv4.tcp_wmem='4096 16384 536870912'",
