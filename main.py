@@ -278,8 +278,13 @@ class NaiveproxyPanel:
         if not os.path.isfile(self.LOCAL_SCRIPT):
             logging.info("Local script is missing, trying to sync upstream content")
             os.system(f"wget -qO {self.LOCAL_SCRIPT} {self.REMOTE_GITHUB} >/dev/null 2>&1")
-        os.system(f"alias npstart='python3 {self.LOCAL_SCRIPT}'")
-        logging.info("Command alias configured")
+        for path_bin in [
+            "/usr/bin/npstart",
+            # "/usr/sbin/npstart", #unnecessary
+        ]:
+            if not os.path.isfile(path_bin):
+                os.system(f"echo 'python3 {self.LOCAL_SCRIPT}' > {path_bin}")
+                os.system(f"chmod +x {path_bin}")
 
     def _compile(self):
         # ==================== preprocess ====================
