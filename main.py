@@ -10,6 +10,7 @@ import logging
 import os
 import re
 import sys
+import time
 import typing
 import uuid
 from dataclasses import dataclass
@@ -402,7 +403,12 @@ class CMDPanel:
 
     def upgrade(self):
         # TODO checkout branch version
-        os.system(f"rm {LOCAL_SCRIPT}")
+        logging.info("Updating script ...")
+        time.sleep(1)
+        bak = f"{LOCAL_SCRIPT}.bak"
+        os.system(f"wget -qO {bak} {REMOTE_GITHUB}")
+        if os.path.isfile(bak):
+            os.system(f"mv {bak} {LOCAL_SCRIPT}")
         os.system(self.alias.BIN_NAME)
 
     def startup(self):
