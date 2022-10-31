@@ -94,8 +94,8 @@ After=network.target network-online.target
 Requires=network-online.target
 
 [Service]
-User=naiveproxy
-Group=naiveproxy
+# User=naiveproxy
+# Group=naiveproxy
 ExecStart={PATH_CADDY} run --environ --config {PATH_CADDYFILE}
 ExecReload={PATH_CADDY} reload --config {PATH_CADDYFILE}
 TimeoutStopSec=5s
@@ -104,8 +104,8 @@ LimitNPROC=512
 PrivateTmp=true
 ProtectSystem=full
 AmbientCapabilities=CAP_NET_BIND_SERVICE
-Restart=always
-RestartSec=45s
+# Restart=always
+# RestartSec=45s
 
 [Install]
 WantedBy=multi-user.target
@@ -367,7 +367,7 @@ class NaiveproxyPanel:
         if not os.path.isfile(self.path_caddy):
             logging.error("編譯失敗")
         else:
-            logging.info("编译成功！按任意键部署 Naiveproxy 系统服务")
+            logging.info("Compiled successfully! Press any key to deploy the Naiveproxy system service.")
             input()
             self.csm.refresh_localcache(drop=True)  # deploy
             self.utils.caddy_start()
