@@ -407,7 +407,7 @@ class CMDPanel:
         time.sleep(1)
         bak = f"{LOCAL_SCRIPT}.bak"
         os.system(f"wget -qO {bak} {REMOTE_GITHUB}")
-        if os.path.isfile(bak):
+        if os.path.isfile(bak) and os.path.getsize(bak):
             os.system(f"mv {bak} {LOCAL_SCRIPT}")
         os.system(self.alias.BIN_NAME)
 
