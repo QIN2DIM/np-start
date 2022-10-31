@@ -55,7 +55,7 @@ V2RAYN_TEMPLATE = """
 }
 """
 
-GUIDER_PANEL = """
+GUIDER_PANEL = """\r
  -------------------------------------------
 |**********        npstart         **********|
 |**********    Author: QIN2DIM     **********|
@@ -277,10 +277,7 @@ class Alias:
     BIN_NAME: str = "npstart"
 
     def register(self):
-        for path_bin in [
-            f"/usr/bin/{self.BIN_NAME}",
-            f"/usr/sbin/{self.BIN_NAME}",  # unnecessary
-        ]:
+        for path_bin in [f"/usr/bin/{self.BIN_NAME}", f"/usr/sbin/{self.BIN_NAME}"]:  # unnecessary
             if not os.path.isfile(path_bin):
                 with open(path_bin, "w", encoding="utf8") as file:
                     file.write(SHELL_NPSTART)
@@ -292,7 +289,6 @@ class Alias:
 
 
 class CMDPanel:
-
     def __init__(self):
         self.path_caddy = PATH_CADDY
         self.csm = ClientSettings()
@@ -370,7 +366,9 @@ class CMDPanel:
         if not os.path.isfile(self.path_caddy):
             logging.error("編譯失敗")
         else:
-            logging.info("Compiled successfully! Press any key to deploy the Naiveproxy system service.")
+            logging.info(
+                "Compiled successfully! Press any key to deploy the Naiveproxy system service."
+            )
             input()
             self.csm.refresh_localcache(drop=True)  # deploy
             self.utils.caddy_start()
