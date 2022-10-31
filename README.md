@@ -17,7 +17,7 @@ wget -qO /home/npstart.py https://raw.githubusercontent.com/QIN2DIM/np-start/mai
 - [x] 优化 HTTP/2 网络环境，大幅度提升吞吐量，降低延时
 - [ ] 监听、拉取、更新代理核心
 
-## Requirement
+## Reference
 
 [Run Caddy as a daemon · klzgrad/naiveproxy Wiki](https://github.com/klzgrad/naiveproxy/wiki/Run-Caddy-as-a-daemon)
 
