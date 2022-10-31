@@ -21,9 +21,11 @@ wget -qO /home/npstart.py https://raw.githubusercontent.com/QIN2DIM/np-start/mai
 
 [Run Caddy as a daemon · klzgrad/naiveproxy Wiki](https://github.com/klzgrad/naiveproxy/wiki/Run-Caddy-as-a-daemon)
 
+[caddyserver/xcaddy: Build Caddy with plugins](https://github.com/caddyserver/xcaddy)
+
+[Caddyfile Concepts — Caddy Documentation](https://caddyserver.com/docs/caddyfile/concepts#structure)
+
 [Optimizing HTTP/2 prioritization with BBR and tcp_notsent_lowat](https://blog.cloudflare.com/http-2-prioritization-with-nginx/)
 
 [Optimizing TCP for high WAN throughput while preserving low latency | Noise](https://noise.getoto.net/2022/07/01/optimizing-tcp-for-high-wan-throughput-while-preserving-low-latency/)
-
-[Caddyfile Concepts — Caddy Documentation](https://caddyserver.com/docs/caddyfile/concepts#structure)
 
