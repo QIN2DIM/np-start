@@ -375,7 +375,7 @@ class NaiveproxyPanel:
     @check_caddy
     def delete(self):
         """删除 np-start 缓存"""
-        if input(">> 卸载「已编译的Caddy服務及缓存數據」[y/n]").strip().lower().startswith("y"):
+        if input(">> 卸载「已编译的Caddy服務及缓存數據」[y/n] ").strip().lower().startswith("y"):
             self.utils.remove()
             self.alias.remove()
             os.system(f"rm -rf {WORKSPACE} >/dev/null 2>&1")
@@ -390,11 +390,11 @@ class NaiveproxyPanel:
 
     @check_caddy
     def reset_user_config(self):
-        if input(">> 是否使用上次配置的用戶名？[y/n]").strip().lower().startswith("n"):
+        if input(">> 是否使用上次配置的用戶名？[y/n] ").strip().lower().startswith("n"):
             self.caddy.username = input(">> 输入用户名[username](回车随机配置)：").strip()
-        if input(">> 是否使用上次配置的密碼？[y/n]").strip().lower().startswith("n"):
+        if input(">> 是否使用上次配置的密碼？[y/n] ").strip().lower().startswith("n"):
             self.caddy.password = input(">> 输入密码[password](回车随机配置)：").strip()
-        if input(f">> 是否使用上次配置的域名({self.caddy.domain})？[y/n]").strip().lower().startswith("n"):
+        if input(f">> 是否使用上次配置的域名({self.caddy.domain})？[y/n] ").strip().lower().startswith("n"):
             self.caddy.domain = self._guide_domain(prompt=">> 输入解析到本机Ipv4的域名[domain]：")
         self.csm.refresh_localcache()  # reset
         logging.info("reset user config")
