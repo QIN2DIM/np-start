@@ -28,6 +28,8 @@ logging.basicConfig(
 WORKSPACE = "/home/naiveproxy/"
 PATH_CADDY = os.path.join(WORKSPACE, "caddy")
 PATH_CADDYFILE = os.path.join(WORKSPACE, "Caddyfile")
+LOCAL_SCRIPT = "/home/npstart.py"
+REMOTE_GITHUB = "https://raw.githubusercontent.com/QIN2DIM/np-start/main/main.py"
 
 CADDYFILE_TEMPLATE = """
 :443, [domain]
@@ -107,6 +109,14 @@ RestartSec=45s
 
 [Install]
 WantedBy=multi-user.target
+"""
+
+SHELL_NPSTART = f"""
+if [ ! -f "{LOCAL_SCRIPT}" ]; then
+    echo "Local script is missing, trying to sync upstream content"
+    wget -qO {LOCAL_SCRIPT} {REMOTE_GITHUB}
+fi
+python3 {LOCAL_SCRIPT}
 """
 
 
@@ -260,11 +270,25 @@ class CaddyService:
         logging.info("Remove the naiveproxy")
 
 
+class Alias:
+    BIN_NAME: str = "npstart"
+
+    def register(self):
+        for path_bin in [
+            f"/usr/bin/{self.BIN_NAME}",
+            f"/usr/sbin/{self.BIN_NAME}",  # unnecessary
+        ]:
+            if not os.path.isfile(path_bin):
+                with open(path_bin, "w", encoding="utf8") as file:
+                    file.write(SHELL_NPSTART)
+                os.system(f"chmod +x {path_bin}")
+
+    def remove(self):
+        os.system(f"rm /usr/bin/{self.BIN_NAME}")
+        os.system(f"rm /usr/sbin/{self.BIN_NAME}")
+
+
 class NaiveproxyPanel:
-    ALIAS = "npstart"
-    LOCAL_SCRIPT = "/home/npstart.py"
-    REMOTE_GITHUB = "https://raw.githubusercontent.com/QIN2DIM/np-start/dev/main.py"
-    REMOTE_GITEE = None
 
     def __init__(self):
         self.path_caddy = PATH_CADDY
@@ -272,19 +296,8 @@ class NaiveproxyPanel:
         self.caddy = self.csm.caddy
         self.utils = CaddyService()
 
-        self._on_alias()
-
-    def _on_alias(self):
-        if not os.path.isfile(self.LOCAL_SCRIPT):
-            logging.info("Local script is missing, trying to sync upstream content")
-            os.system(f"wget -qO {self.LOCAL_SCRIPT} {self.REMOTE_GITHUB} >/dev/null 2>&1")
-        for path_bin in [
-            "/usr/bin/npstart",
-            # "/usr/sbin/npstart", #unnecessary
-        ]:
-            if not os.path.isfile(path_bin):
-                os.system(f"echo 'python3 {self.LOCAL_SCRIPT}' > {path_bin}")
-                os.system(f"chmod +x {path_bin}")
+        self.alias = Alias()
+        self.alias.register()
 
     def _compile(self):
         # ==================== preprocess ====================
@@ -364,8 +377,8 @@ class NaiveproxyPanel:
         """删除 np-start 缓存"""
         if input(">> 卸载「已编译的Caddy服務及缓存數據」[y/n]").strip().lower().startswith("y"):
             self.utils.remove()
+            self.alias.remove()
             os.system(f"rm -rf {WORKSPACE} >/dev/null 2>&1")
-            os.system(f"unalias {self.ALIAS}")
             logging.info("Delete cache of the naiveproxy")
         else:
             logging.info(f"Withdraw operation")
