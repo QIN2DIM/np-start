@@ -340,8 +340,8 @@ class NaiveproxyPanel:
             "sudo sysctl -w net.ipv4.tcp_congestion_control=bbr",
             # optimizing tcp for high wan throughput while preserving low latency
             "sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0",
-            "sudo sysctl -w net.ipv4.tcp_rmem=8192 262144 536870912",
-            "sudo sysctl -w net.ipv4.tcp_wmem=4096 16384 536870912",
+            "sudo sysctl -w net.ipv4.tcp_rmem='8192 262144 536870912'",
+            "sudo sysctl -w net.ipv4.tcp_wmem='4096 16384 536870912'",
             "sudo sysctl -w net.ipv4.tcp_adv_win_scale=-2",
             "sudo sysctl -w net.ipv4.tcp_collapse_max_bytes=6291456",
             "sudo sysctl -w net.ipv4.tcp_notsent_lowat=131072",
