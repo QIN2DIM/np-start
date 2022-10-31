@@ -10,6 +10,7 @@ import logging
 import os
 import re
 import sys
+import typing
 import uuid
 from dataclasses import dataclass
 
@@ -24,8 +25,9 @@ logging.basicConfig(
     datefmt="%Y/%m/%d %H:%M:%S",
 )
 
-WORKSPACE = "/home/naiveproxy"
+WORKSPACE = "/home/naiveproxy/"
 PATH_CADDY = os.path.join(WORKSPACE, "caddy")
+PATH_CADDYFILE = os.path.join(WORKSPACE, "Caddyfile")
 
 CADDYFILE_TEMPLATE = """
 :443, [domain]
@@ -68,7 +70,7 @@ Tips: npstart 命令再次运行本脚本.
 ..................... 
 3)  启动 
 4)  暂停 
-5)  重新启动 
+5)  重载 
 6)  运行状态 
 ..................... 
 7)  查看当前配置 
@@ -81,6 +83,31 @@ Tips: npstart 命令再次运行本脚本.
 0)退出 
 ............................................. 
 请选择: """
+
+NAIVEPROXY_SERVICE = f"""
+[Unit]
+Description=npstart:Caddy2 web server with naiveproxy plugin
+Documentation=https://github.com/QIN2DIM/np-start
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+User=naiveproxy
+Group=naiveproxy
+ExecStart={PATH_CADDY} run --environ --config {PATH_CADDYFILE}
+ExecReload={PATH_CADDY} reload --config {PATH_CADDYFILE}
+TimeoutStopSec=5s
+LimitNOFILE=1048576
+LimitNPROC=512
+PrivateTmp=true
+ProtectSystem=full
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+Restart=always
+RestartSec=45s
+
+[Install]
+WantedBy=multi-user.target
+"""
 
 
 @dataclass
@@ -120,37 +147,18 @@ class CaddyServer:
         return sharelink.replace("=", "")
 
 
-def check_caddy(func):
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        if not os.path.isfile(PATH_CADDY) or not os.path.getsize(PATH_CADDY):
-            logging.error(f"Naiveproxy 未初始化，請先執行「敏捷部署」 - func={func.__name__}")
-        else:
-            return func(*args, **kwargs)
+@dataclass
+class ClientSettings:
+    dir_workspace: str = WORKSPACE
+    path_caddyfile: str = PATH_CADDYFILE
 
-    return wrapped
+    path_config_server: typing.Optional[str] = ""
+    path_client_config: typing.Optional[str] = ""
+    caddy: typing.Optional[CaddyServer] = None
 
-
-def skip_recompile(func):
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        if os.path.isfile(PATH_CADDY) and os.path.getsize(PATH_CADDY):
-            logging.error(f"Naiveproxy 已编译，如需修改参数请执行「重新配置」 - func={func.__name__}")
-        else:
-            return func(*args, **kwargs)
-
-    return wrapped
-
-
-class ClientSettingsManager:
-    dir_workspace = WORKSPACE
-    path_caddyfile = os.path.join(dir_workspace, "Caddyfile")
-    path_v2rayn_socks5 = os.path.join(dir_workspace, "v2rayn_socks5_config.txt")
-    path_sharelink_nekoray = os.path.join(dir_workspace, "nekoray_sharelink.txt")
-    path_config_server = os.path.join(dir_workspace, "caddy_server.json")
-    path_client_config = os.path.join(dir_workspace, "clients.json")
-
-    def __init__(self):
+    def __post_init__(self):
+        self.path_config_server = os.path.join(self.dir_workspace, "caddy_server.json")
+        self.path_client_config = os.path.join(self.dir_workspace, "clients.json")
         self.caddy = self._preload_config()
 
     def _preload_config(self) -> CaddyServer:
@@ -184,39 +192,72 @@ class ClientSettingsManager:
             print(f"\n{localcache.get('shadowrocket_sharelink')}\n")
 
 
-class CaddyServiceControl:
-    def __init__(self, path_caddy):
-        self.path_caddy = path_caddy
+def check_caddy(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        if not os.path.isfile(PATH_CADDY) or not os.path.getsize(PATH_CADDY):
+            logging.error(f"Naiveproxy 未初始化，請先執行「敏捷部署」 - func={func.__name__}")
+        else:
+            return func(*args, **kwargs)
+
+    return wrapped
+
+
+def skip_recompile(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        if os.path.isfile(PATH_CADDY) and os.path.getsize(PATH_CADDY):
+            logging.error(f"Naiveproxy 已编译，如需修改参数请执行「重新配置」 - func={func.__name__}")
+        else:
+            return func(*args, **kwargs)
+
+    return wrapped
+
+
+class CaddyService:
+    name: str = "naiveproxy"
+
+    def __init__(self):
+        self._on_service()
+
+    def _on_service(self):
+        path_units = f"/etc/systemd/system/{self.name}.service"
+        if not os.path.isfile(path_units):
+            with open(path_units, "w", encoding="utf8") as file:
+                file.write(NAIVEPROXY_SERVICE)
+            os.system("systemctl daemon-reload")
+            os.system(f"systemctl enable {self.name} >/dev/null 2>&1")
 
     @check_caddy
     def caddy_start(self):
         """后台运行 CaddyServer"""
-        os.system(f"cd {os.path.dirname(self.path_caddy)} && ./caddy start >/dev/null 2>&1")
+        os.system(f"systemctl start {self.name}")
         logging.info("Start the naiveproxy")
 
     @check_caddy
     def caddy_stop(self):
         """停止 CaddyServer"""
-        os.system(f"cd {os.path.dirname(self.path_caddy)} && ./caddy stop >/dev/null 2>&1")
+        os.system(f"systemctl stop {self.name}")
         logging.info("Stop the naiveproxy")
 
     @check_caddy
     def caddy_reload(self):
         """重启 CaddyServer 重新读入配置"""
-        os.system(f"cd {os.path.dirname(self.path_caddy)} && ./caddy reload >/dev/null 2>&1")
+        os.system(f"systemctl reload-or-restart {self.name}")
         logging.info("Reload the naiveproxy")
 
     @check_caddy
     def caddy_status(self):
         """查看 CaddyServer 运行状态"""
+        os.system(f"systemctl status {self.name}")
 
 
 class NaiveproxyPanel:
     def __init__(self):
         self.path_caddy = PATH_CADDY
-        self.csm = ClientSettingsManager()
+        self.csm = ClientSettings()
         self.caddy = self.csm.caddy
-        self.utils = CaddyServiceControl(self.path_caddy)
+        self.utils = CaddyService()
 
     def _compile(self):
         # ==================== preprocess ====================
@@ -286,7 +327,7 @@ class NaiveproxyPanel:
         if not os.path.isfile(self.path_caddy):
             logging.error("編譯失敗")
         else:
-            logging.info("按任意键部署 Naiveproxy 系统服务")
+            logging.info("编译成功！按任意键部署 Naiveproxy 系统服务")
             input()
             self.csm.refresh_localcache(drop=True)  # deploy
             self.utils.caddy_start()
