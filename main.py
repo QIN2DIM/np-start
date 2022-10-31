@@ -59,7 +59,7 @@ V2RAYN_TEMPLATE = """
 GUIDER_PANEL = """ -------------------------------------------
 |**********        npstart         **********|
 |**********    Author: QIN2DIM     **********|
-|**********     Version: 0.1.0     **********|
+|**********     Version: 0.1.1     **********|
  -------------------------------------------
 Tips: npstart 命令再次运行本脚本.
 .............................................
@@ -297,6 +297,25 @@ class CMDPanel:
         self.alias = Alias()
         self.alias.register()
 
+    @staticmethod
+    def _optimize():
+        """Network FineTune"""
+        logging.info("Naiveproxy Network Performance Tuning")
+        cmd_queue = (
+            # ENABLE BBR+FQ CONGESTION CONTROL ALGORITHM
+            "sudo sysctl -w net.core.default_qdisc=fq"
+            "sudo sysctl -w net.ipv4.tcp_congestion_control=bbr",
+            # OPTIMIZING TCP FOR HIGH WAN THROUGHPUT WHILE PRESERVING LOW LATENCY
+            "sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0",
+            "sudo sysctl -w net.ipv4.tcp_rmem='8192 262144 536870912'",
+            "sudo sysctl -w net.ipv4.tcp_wmem='4096 16384 536870912'",
+            "sudo sysctl -w net.ipv4.tcp_adv_win_scale=-2",
+            "sudo sysctl -w net.ipv4.tcp_collapse_max_bytes=6291456",
+            "sudo sysctl -w net.ipv4.tcp_notsent_lowat=131072",
+        )
+        for cmd in cmd_queue:
+            os.system(cmd)
+
     def _compile(self):
         # ==================== preprocess ====================
         os.system("clear")
@@ -330,23 +349,6 @@ class CMDPanel:
             logging.info("Caddy already exists, skip compilation")
             logging.info(self.path_caddy)
 
-        # ==================== Network FineTune ====================
-        logging.info("Naiveproxy Network Performance Tuning")
-        cmd_queue = (
-            # Enable BBR+FQ Congestion control algorithm
-            "sudo sysctl -w net.core.default_qdisc=fq"
-            "sudo sysctl -w net.ipv4.tcp_congestion_control=bbr",
-            # optimizing tcp for high wan throughput while preserving low latency
-            "sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0",
-            "sudo sysctl -w net.ipv4.tcp_rmem='8192 262144 536870912'",
-            "sudo sysctl -w net.ipv4.tcp_wmem='4096 16384 536870912'",
-            "sudo sysctl -w net.ipv4.tcp_adv_win_scale=-2",
-            "sudo sysctl -w net.ipv4.tcp_collapse_max_bytes=6291456",
-            "sudo sysctl -w net.ipv4.tcp_notsent_lowat=131072",
-        )
-        for cmd in cmd_queue:
-            os.system(cmd)
-
     @staticmethod
     def _guide_domain(prompt: str):
         pattern = re.compile(r"(?:\w(?:[\w\-]{0,61}\w)?\.)+[a-zA-Z]{2,6}")
@@ -362,12 +364,12 @@ class CMDPanel:
         self.caddy.password = input(">> 输入密码[password](回车随机配置)：").strip() or self.caddy.password
         self.caddy.domain = self._guide_domain(prompt=">> 输入解析到本机Ipv4的域名[domain]：")
         self._compile()
+
         if not os.path.isfile(self.path_caddy):
-            logging.error("編譯失敗")
+            logging.error("👻 編譯失敗")
         else:
-            logging.info(
-                "Compiled successfully! Press any key to deploy the Naiveproxy system service."
-            )
+            self._optimize()  # deploy
+            logging.info("🎉 编译成功! 按任意键部署 Naiveproxy 系统服务")
             input()
             self.csm.refresh_localcache(drop=True)  # deploy
             self.utils.caddy_start()
@@ -424,6 +426,7 @@ class CMDPanel:
             self.utils.caddy_stop()
         elif item == "5":
             self.utils.caddy_reload()
+            self._optimize()  # caddy reload
         elif item == "6":
             self.utils.caddy_status()
         elif item == "7":
