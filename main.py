@@ -57,7 +57,7 @@ V2RAYN_TEMPLATE = """
 
 GUIDER_PANEL = """
  -------------------------------------------
-|**********       np-start         **********|
+|**********        npstart         **********|
 |**********    Author: QIN2DIM     **********|
 |**********     Version: 0.1.0     **********|
  -------------------------------------------
@@ -77,6 +77,9 @@ Tips: npstart 命令再次运行本脚本.
 ..................... 
 7)  查看当前配置 
 8)  重新配置
+..................... 
+9)  更新 npstart
+10  [dev] sync upstream
 
 ############################### 
 
@@ -288,7 +291,7 @@ class Alias:
         os.system(f"rm /usr/sbin/{self.BIN_NAME}")
 
 
-class NaiveproxyPanel:
+class CMDPanel:
 
     def __init__(self):
         self.path_caddy = PATH_CADDY
@@ -359,7 +362,7 @@ class NaiveproxyPanel:
                 return result[0]
 
     @skip_recompile
-    def deploy_naiveproxy(self):
+    def deploy(self):
         self.caddy.username = input(">> 输入用户名[username](回车随机配置)：").strip() or self.caddy.username
         self.caddy.password = input(">> 输入密码[password](回车随机配置)：").strip() or self.caddy.password
         self.caddy.domain = self._guide_domain(prompt=">> 输入解析到本机Ipv4的域名[domain]：")
@@ -384,12 +387,12 @@ class NaiveproxyPanel:
             logging.info(f"Withdraw operation")
 
     @check_caddy
-    def check_config(self):
+    def checkout(self):
         """查看客户端配置信息"""
         self.csm.refresh_localcache(drop=True)  # check
 
     @check_caddy
-    def reset_user_config(self):
+    def reset(self):
         if input(">> 是否使用上次配置的用戶名？[y/n] ").strip().lower().startswith("n"):
             self.caddy.username = input(">> 输入用户名[username](回车随机配置)：").strip()
         if input(">> 是否使用上次配置的密碼？[y/n] ").strip().lower().startswith("n"):
@@ -400,12 +403,17 @@ class NaiveproxyPanel:
         logging.info("reset user config")
         self.utils.caddy_reload()
 
-    def guide_menu(self):
+    def upgrade(self):
+        # TODO checkout branch version
+        os.system(f"rm {LOCAL_SCRIPT}")
+        os.system(self.alias.BIN_NAME)
+
+    def startup(self):
         if not (item := input(GUIDER_PANEL).strip()):
             return
 
         if item == "1":
-            self.deploy_naiveproxy()
+            self.deploy()
         elif item == "2":
             self.delete()
         elif item == "3":
@@ -417,15 +425,17 @@ class NaiveproxyPanel:
         elif item == "6":
             self.utils.caddy_status()
         elif item == "7":
-            self.check_config()
+            self.checkout()
         elif item == "8":
-            self.reset_user_config()
+            self.reset()
+        elif item == "9":
+            self.upgrade()
 
 
 if __name__ == "__main__":
 
     try:
-        NaiveproxyPanel().guide_menu()
+        CMDPanel().startup()
     except KeyboardInterrupt:
         print("\n")
 
