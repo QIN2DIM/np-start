@@ -5,7 +5,7 @@ Ubuntu20.04+ 自动编译 Naiveproxy
 ## Quick Start
 
 ```shell
-wget -O npstart.py https://raw.githubusercontent.com/QIN2DIM/np-start/main/main.py && python3 npstart.py
+wget -qO- https://raw.githubusercontent.com/QIN2DIM/np-start/main/main.py | python3
 ```
 
 ## 脚本执行流
