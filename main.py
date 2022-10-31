@@ -215,45 +215,46 @@ def skip_recompile(func):
 
 
 class CaddyService:
-    name: str = "naiveproxy"
+    NAME: str = "naiveproxy"
 
     def __init__(self):
+        self.path_units = f"/etc/systemd/system/{self.NAME}.service"
+
         self._on_service()
-        self.path_units = f"/etc/systemd/system/{self.name}.service"
 
     def _on_service(self):
         if not os.path.isfile(self.path_units):
             with open(self.path_units, "w", encoding="utf8") as file:
                 file.write(NAIVEPROXY_SERVICE)
             os.system("systemctl daemon-reload")
-            os.system(f"systemctl enable {self.name} >/dev/null 2>&1")
+            os.system(f"systemctl enable {self.NAME} >/dev/null 2>&1")
 
     @check_caddy
     def caddy_start(self):
         """后台运行 CaddyServer"""
-        os.system(f"systemctl start {self.name}")
+        os.system(f"systemctl start {self.NAME}")
         logging.info("Start the naiveproxy")
 
     @check_caddy
     def caddy_stop(self):
         """停止 CaddyServer"""
-        os.system(f"systemctl stop {self.name}")
+        os.system(f"systemctl stop {self.NAME}")
         logging.info("Stop the naiveproxy")
 
     @check_caddy
     def caddy_reload(self):
         """重启 CaddyServer 重新读入配置"""
-        os.system(f"systemctl reload-or-restart {self.name}")
+        os.system(f"systemctl reload-or-restart {self.NAME}")
         logging.info("Reload the naiveproxy")
 
     @check_caddy
     def caddy_status(self):
         """查看 CaddyServer 运行状态"""
-        os.system(f"systemctl status {self.name}")
+        os.system(f"systemctl status {self.NAME}")
 
     def remove(self):
-        os.system(f"systemctl stop {self.name}")
-        os.system(f"systemctl disable {self.name} >/dev/null 2>&1")
+        os.system(f"systemctl stop {self.NAME}")
+        os.system(f"systemctl disable {self.NAME} >/dev/null 2>&1")
         os.system(f"rm {self.path_units}")
         os.system("systemctl daemon-reload")
         logging.info("Remove the naiveproxy")
