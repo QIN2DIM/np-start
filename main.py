@@ -29,7 +29,7 @@ WORKSPACE = "/home/naiveproxy/"
 PATH_CADDY = os.path.join(WORKSPACE, "caddy")
 PATH_CADDYFILE = os.path.join(WORKSPACE, "Caddyfile")
 LOCAL_SCRIPT = "/home/npstart.py"
-REMOTE_GITHUB = "https://raw.githubusercontent.com/QIN2DIM/np-start/main/main.py"
+REMOTE_GITHUB = "https://raw.githubusercontent.com/QIN2DIM/np-start/dev/main.py"
 
 CADDYFILE_TEMPLATE = """
 :443, [domain]
