@@ -327,6 +327,7 @@ class CMDPanel:
         logging.info("Check go1.18+")
         os.system("apt remove golang-go -y >/dev/null 2>&1")
         os.system("snap install go --classic >/dev/null 2>&1")
+        os.system("source ~/.bashrc")
 
         logging.info("Check xcaddy")
         cmd_queue = (
