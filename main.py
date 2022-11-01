@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 import sys
 import time
 import typing
@@ -59,7 +60,7 @@ V2RAYN_TEMPLATE = """
 GUIDER_PANEL = """ -------------------------------------------
 |**********        npstart         **********|
 |**********    Author: QIN2DIM     **********|
-|**********     Version: 0.1.2     **********|
+|**********     Version: 0.1.2.1     **********|
  -------------------------------------------
 Tips: npstart 命令再次运行本脚本.
 .............................................
@@ -327,7 +328,7 @@ class CMDPanel:
         logging.info("Check go1.18+")
         os.system("apt remove golang-go -y >/dev/null 2>&1")
         os.system("snap install go --classic >/dev/null 2>&1")
-        os.system(". /etc/profile")
+        subprocess.Popen(["source", "/etc/profile"], shell=True, executable='/bin/bash')
 
         logging.info("Check xcaddy")
         cmd_queue = (
