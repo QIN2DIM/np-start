@@ -9,7 +9,6 @@ import json
 import logging
 import os
 import re
-import subprocess
 import sys
 import time
 import typing
@@ -60,7 +59,7 @@ V2RAYN_TEMPLATE = """
 GUIDER_PANEL = """ -------------------------------------------
 |**********        npstart         **********|
 |**********    Author: QIN2DIM     **********|
-|**********     Version: 0.1.2.4     **********|
+|**********     Version: 0.1.2     **********|
  -------------------------------------------
 Tips: npstart 命令再次运行本脚本.
 .............................................
@@ -328,8 +327,6 @@ class CMDPanel:
         logging.info("Check go1.18+")
         os.system("apt remove golang-go -y >/dev/null 2>&1")
         os.system("snap install go --classic >/dev/null 2>&1")
-        p = subprocess.Popen(["source", "/etc/profile"], shell=True, executable='/bin/bash')
-        p.wait()
 
         logging.info("Check xcaddy")
         cmd_queue = (
@@ -344,7 +341,7 @@ class CMDPanel:
         if not os.path.isfile(self.path_caddy):
             logging.info("Build caddy with naiveproxy")
             os.system(
-                f"xcaddy build "
+                f"export PATH=$PATH:/snap/bin && xcaddy build "
                 f"--output {self.path_caddy} "
                 f"--with github.com/caddyserver/forwardproxy@caddy2=github.com/klzgrad/forwardproxy@naive"
             )
