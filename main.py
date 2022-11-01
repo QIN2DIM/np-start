@@ -59,7 +59,7 @@ V2RAYN_TEMPLATE = """
 GUIDER_PANEL = """ -------------------------------------------
 |**********        npstart         **********|
 |**********    Author: QIN2DIM     **********|
-|**********     Version: 0.1.1     **********|
+|**********     Version: 0.1.2     **********|
  -------------------------------------------
 Tips: npstart 命令再次运行本脚本.
 .............................................
@@ -341,7 +341,7 @@ class CMDPanel:
         if not os.path.isfile(self.path_caddy):
             logging.info("Build caddy with naiveproxy")
             os.system(
-                f"xcaddy build "
+                f"export PATH=$PATH:/snap/bin && xcaddy build "
                 f"--output {self.path_caddy} "
                 f"--with github.com/caddyserver/forwardproxy@caddy2=github.com/klzgrad/forwardproxy@naive"
             )
