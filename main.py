@@ -306,12 +306,12 @@ class CMDPanel:
             "sudo sysctl -w net.core.default_qdisc=fq"
             "sudo sysctl -w net.ipv4.tcp_congestion_control=bbr",
             # OPTIMIZING TCP FOR HIGH WAN THROUGHPUT WHILE PRESERVING LOW LATENCY
-            "sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0",
-            "sudo sysctl -w net.ipv4.tcp_rmem='8192 262144 536870912'",
-            "sudo sysctl -w net.ipv4.tcp_wmem='4096 16384 536870912'",
-            "sudo sysctl -w net.ipv4.tcp_adv_win_scale=-2",
-            "sudo sysctl -w net.ipv4.tcp_collapse_max_bytes=6291456",
-            "sudo sysctl -w net.ipv4.tcp_notsent_lowat=131072",
+            # "sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0",
+            # "sudo sysctl -w net.ipv4.tcp_rmem='8192 262144 536870912'",
+            # "sudo sysctl -w net.ipv4.tcp_wmem='4096 16384 536870912'",
+            # "sudo sysctl -w net.ipv4.tcp_adv_win_scale=-2",
+            # "sudo sysctl -w net.ipv4.tcp_collapse_max_bytes=6291456",
+            # "sudo sysctl -w net.ipv4.tcp_notsent_lowat=131072",
         )
         for cmd in cmd_queue:
             os.system(cmd)
